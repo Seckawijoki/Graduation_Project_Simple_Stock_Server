@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="c3p0-0.9.5.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/freemarker-2.3.20.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/log4j-1.2.16.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/mysql-connector-java-5.1.20-bin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" build-on-make="true" name="JFinalTest_tomcat:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/JFinalTest_tomcat_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="JFinalTest_tomcat/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="JFinalTest_tomcat" />
+        </element>
+        <element id="directory" name="lib" />
+      </element>
+    </root>
+  </artifact>
+</component>

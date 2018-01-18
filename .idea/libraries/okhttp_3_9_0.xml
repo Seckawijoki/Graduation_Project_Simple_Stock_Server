@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="okhttp-3.9.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/okhttp-3.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/okio-1.13.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

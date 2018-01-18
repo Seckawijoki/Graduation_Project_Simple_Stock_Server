@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/JFinalTest_jetty/JFinalTest_jetty.iml" filepath="$PROJECT_DIR$/JFinalTest_jetty/JFinalTest_jetty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JFinalTest_tomcat/JFinalTest_tomcat.iml" filepath="$PROJECT_DIR$/JFinalTest_tomcat/JFinalTest_tomcat.iml" />
+    </modules>
+  </component>
+</project>

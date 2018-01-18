@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="jfinal-3.2-bin">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/jfinal-3.2-bin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/JFinalTest_jetty/web/WEB-INF/lib/jfinal-3.2-bin.jar!/" />
+    </SOURCES>
+  </library>
+</component>

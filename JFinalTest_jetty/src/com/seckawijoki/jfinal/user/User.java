@@ -5,6 +5,7 @@ import com.jfinal.plugin.activerecord.Model;
 import com.jfinal.plugin.activerecord.Record;
 import com.seckawijoki.jfinal.constants.server.DefaultGroups;
 import com.seckawijoki.jfinal.constants.server.DefaultStocks;
+import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
 import com.seckawijoki.jfinal.constants.server.StockType;
 import com.seckawijoki.jfinal.constants.server.LoginStatus;
 import com.seckawijoki.jfinal.constants.database.UserStatus;
@@ -22,47 +23,13 @@ import java.util.List;
  */
 
 public class User extends Model<User> {
-  public static final String TABLE_NAME = "user";
-  public static final String USER_ID = "userId";
-  static final String PHONE = "phone";
-  static final String EMAIL = "email";
-  static final String USER_NAME = "userName";
-  static final String PASSWORD = "password";
-  static final String MAC = "mac";
-  static final String NICKNAME = "nickname";
-  static final String USER_STATUS = "userStatus";
-  static final String REGISTER_TIME = "registerTime";
-  static final String LAST_LOGIN_TIME = "lastLoginTime";
-
   JSONObject requestLogin(String account, String password, String mac) {
     System.out.println("User.requestLogin(): ");
     JSONObject jsonObject = new JSONObject();
     Record record = Db.findFirst
-            ("select * from " + TABLE_NAME + " where userName = ? or email = ? or phone = ?",
+            ("select * from " + MoJiReTsu.USER + " where userName = ? or email = ? or phone = ?",
                     account, account, account);
-    /*
-    outerLooping:
-    for ( int i = 0 ; i < 3 ; ++i ) {
-      switch ( i ) {
-        default:
-        case 0:
-          list = Db.find("select * from " + TABLE_NAME + " where " + USER_NAME + " = ?", account);
-          if ( !list.isEmpty() ) break outerLooping;
-          userNameError = true;
-          break;
-        case 1:
-          list = Db.find("select * from " + TABLE_NAME + " where " + PHONE + " = ?", account);
-          if ( !list.isEmpty() ) break outerLooping;
-          phoneError = true;
-          break;
-        case 2:
-          list = Db.find("select * from " + TABLE_NAME + " where " + EMAIL + " = ?", account);
-          if ( !list.isEmpty() ) break outerLooping;
-          emailError = true;
-          break;
-      }
-    }
-    */
+
     if ( record == null ) {
 //    if ( userNameError && phoneError && emailError ) {
       System.out.println("User.requestLogin():  Has not registered.");
@@ -77,37 +44,37 @@ public class User extends Model<User> {
       return jsonObject;
     }
     jsonObject.put("userId", record.getLong("userId"));
-    if ( !TextUtils.equals(record.getStr(PASSWORD), password) ) {
+    if ( !TextUtils.equals(record.getStr(MoJiReTsu.PASSWORD), password) ) {
       System.out.println("User.requestLogin():  Password error.");
       //Password error.
       jsonObject.put(LoginStatus.KEY, LoginStatus.PASSWORD_ERROR);
       return jsonObject;
     }
     System.out.println("User.requestLogin(): record = " + record);
-    if ( !TextUtils.equals(record.getStr(MAC), mac) ) {
+    if ( !TextUtils.equals(record.getStr(MoJiReTsu.MAC), mac) ) {
       //TODO: judging different login device
       jsonObject.put(LoginStatus.KEY, LoginStatus.DIFFERENT_MAC);
-      loginSuccessful(mac, password, record.getInt(USER_ID));
+      loginSuccessful(mac, password, record.getInt(MoJiReTsu.USER_ID));
       return jsonObject;
     }
-    if ( record.getInt(USER_STATUS) == UserStatus.INLINE ) {
+    if ( record.getInt(MoJiReTsu.USER_STATUS) == UserStatus.INLINE ) {
       System.out.println("User.requestLogin(): Has logged in.");
       //Has logged in.
-      if ( TextUtils.equals(record.getStr(MAC), mac) ) {
+      if ( TextUtils.equals(record.getStr(MoJiReTsu.MAC), mac) ) {
         jsonObject.put(LoginStatus.KEY, LoginStatus.HAS_LOGGED_IN_ON_THE_PHONE);
       } else {
         jsonObject.put(LoginStatus.KEY, LoginStatus.HAS_LOGGED_IN_ON_ANOTHER_PHONE);
       }
       return jsonObject;
     }
-    if ( record.getInt(USER_STATUS) == UserStatus.FROZEN ) {
+    if ( record.getInt(MoJiReTsu.USER_STATUS) == UserStatus.FROZEN ) {
       System.out.println("User.requestLogin(): Account frozen.");
       //Account frozen.
       jsonObject.put(LoginStatus.KEY, LoginStatus.FROZEN);
       return jsonObject;
     }
     jsonObject.put(LoginStatus.KEY, LoginStatus.SUCCESSFUL);
-    loginSuccessful(mac, password, record.getLong(USER_ID));
+    loginSuccessful(mac, password, record.getLong(MoJiReTsu.USER_ID));
     return jsonObject;
   }
 
@@ -122,7 +89,7 @@ public class User extends Model<User> {
 
   boolean requestCheckPhoneExistent(String phone) {
     Record record = Db.findFirst(
-            "select phone from " + TABLE_NAME + " where " + PHONE + " = ? ", phone);
+            "select phone from " + MoJiReTsu.USER + " where " + MoJiReTsu.PHONE + " = ? ", phone);
     System.out.println("User.requestCheckPhoneExistent(): record = " + record);
 //    if (phone.equals("13510604840"))return false;
     return record != null;
@@ -136,14 +103,14 @@ public class User extends Model<User> {
     if (Db.save("favorites_list", record) == false)return false;
     */
     /*
-    List<Record> list = Db.find("select * from " + TABLE_NAME + " where email = ? or phone = ? or userName = ?",
+    List<Record> list = Db.find("select * from " + USER + " where email = ? or phone = ? or userName = ?",
             account, account, account);
     if (list.isEmpty() == false){
       Record record = list.get(0);
       System.out.println("User.requestLogout(): record = " + record);
     }
     */
-    int result = Db.update("update " + TABLE_NAME
+    int result = Db.update("update " + MoJiReTsu.USER
                     + " set userStatus = ? where email = ? or phone = ? or userName = ?",
             UserStatus.OFFLINE, account, account, account);
     System.out.println("User.requestLogout(): result = " + result);
@@ -160,13 +127,14 @@ public class User extends Model<User> {
     }
     Date systemTime = Calendar.getInstance().getTime();
     Record record = new Record()
-            .set(PHONE, phone)
-            .set(PASSWORD, password)
-            .set(USER_STATUS, UserStatus.INLINE)
-            .set(MAC, mac)
-            .set(REGISTER_TIME, systemTime)
-            .set(LAST_LOGIN_TIME, systemTime);
-    Db.save(TABLE_NAME, record);
+            .set(MoJiReTsu.PHONE, phone)
+            .set(MoJiReTsu.PASSWORD, password)
+            .set(MoJiReTsu.USER_STATUS, UserStatus.INLINE)
+            .set(MoJiReTsu.MAC, mac)
+            .set(MoJiReTsu.REGISTER_TIME, systemTime)
+            .set(MoJiReTsu.LAST_LOGIN_TIME, systemTime)
+            .set(MoJiReTsu.NICKNAME, phone);
+    Db.save(MoJiReTsu.USER, record);
     System.out.println("User.requestRegister(): record = " + record);
     createDefaultFavoriteGroup(phone);
     createDefaultFavoriteStocks(phone);
@@ -175,24 +143,15 @@ public class User extends Model<User> {
 
   JSONObject requestGetUserInformation(String account) {
     JSONObject jsonObject = new JSONObject();
-    Record record = Db.findFirst("select * from " + TABLE_NAME
+    Record record = Db.findFirst("select * from " + MoJiReTsu.USER
             + " where phone = ? or email = ? or userId = ? ", account, account, account);
     if ( record == null )
       return null;
-    jsonObject.put(NICKNAME, record.getStr(NICKNAME));
-    jsonObject.put(PHONE, record.getStr(PHONE));
-    jsonObject.put(EMAIL, record.getStr(EMAIL));
-    jsonObject.put(USER_ID, record.getStr(USER_ID));
+    jsonObject.put(MoJiReTsu.NICKNAME, record.getStr(MoJiReTsu.NICKNAME));
+    jsonObject.put(MoJiReTsu.PHONE, record.getStr(MoJiReTsu.PHONE));
+    jsonObject.put(MoJiReTsu.EMAIL, record.getStr(MoJiReTsu.EMAIL));
+    jsonObject.put(MoJiReTsu.USER_ID, record.getStr(MoJiReTsu.USER_ID));
     return jsonObject;
-  }
-
-  boolean requestChangeNickname(String account, String nickname) {
-    Record record = Db.findFirst("select * from " + TABLE_NAME
-            + " where phone = ? or email = ? or userId = ? ", account, account, account);
-    if ( record == null )
-      return false;
-    Db.update("update " + TABLE_NAME + " set nickname = ?", nickname);
-    return true;
   }
 
   /**

@@ -11,6 +11,7 @@ import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.SqlReporter;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
+import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
 import com.seckawijoki.jfinal.controller.AllStocksController;
 import com.seckawijoki.jfinal.controller.ChuangYeBanController;
 import com.seckawijoki.jfinal.controller.FavoriteController;
@@ -27,8 +28,6 @@ import com.seckawijoki.jfinal.user.User;
 import com.seckawijoki.jfinal.user.UserController;
 import com.seckawijoki.jfinal.utils.OkHttpUtils;
 
-import okhttp3.OkHttpClient;
-
 /**
  * Created by 瑶琴频曲羽衣魂 on 2017/11/21 at 11:24.
  */
@@ -39,7 +38,8 @@ public class SeckawijokiConfig extends JFinalConfig {
     // 加载少量必要配置，随后可用PropKit.get(...)获取值
     loadPropertyFile("a_little_config.txt");
     constants.setDevMode(true);
-    constants.setBaseDownloadPath(PathKit.getRootClassPath()+"\\k_line_chart");
+    constants.setBaseUploadPath(PathKit.getWebRootPath() + "\\uploaded_images");
+    constants.setBaseDownloadPath(PathKit.getWebRootPath()+"\\k_line_chart");
   }
 
   public void configRoute(Routes routes) {
@@ -57,6 +57,7 @@ public class SeckawijokiConfig extends JFinalConfig {
             .add("/search", SearchController.class)
             .add("/transaction", TransactionController.class)
     ;
+
   }
 
   public void configEngine(Engine engine) {
@@ -79,7 +80,8 @@ public class SeckawijokiConfig extends JFinalConfig {
             .addSqlTemplate("user.sql")
             .addSqlTemplate("stock.sql")
             .addSqlTemplate("search.sql")
-            .addSqlTemplate("favorite.sql");
+            .addSqlTemplate("favorite.sql")
+            .addSqlTemplate("transaction.sql");
     arp.setShowSql(true);
     //TODO
 
@@ -88,20 +90,20 @@ public class SeckawijokiConfig extends JFinalConfig {
     // 映射blog 表到 Blog模型
 
     arp.addMapping(
-            User.TABLE_NAME,
-            User.USER_ID,
+            MoJiReTsu.USER,
+            MoJiReTsu.USER_ID,
             User.class);
     /*
     arp.addMapping(
-            SZ.TABLE_NAME,
+            SZ.USER,
             SZ.STOCK_ID,
             SZ.class);
     arp.addMapping(
-            SH.TABLE_NAME,
+            SH.USER,
             SH.STOCK_ID,
             SH.class);
     arp.addMapping(
-            ChuangYeBan.TABLE_NAME,
+            ChuangYeBan.USER,
             ChuangYeBan.STOCK_ID,
             ChuangYeBan.class);
     */

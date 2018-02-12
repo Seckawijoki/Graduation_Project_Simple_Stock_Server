@@ -6,13 +6,18 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
+import com.jfinal.core.JFinalFilter;
 import com.jfinal.kit.PathKit;
+import com.jfinal.log.Log;
+import com.jfinal.log.LogManager;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.Config;
 import com.jfinal.plugin.activerecord.SqlReporter;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
 import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
 import com.seckawijoki.jfinal.controller.AllStocksController;
+import com.seckawijoki.jfinal.controller.AppController;
 import com.seckawijoki.jfinal.controller.ChuangYeBanController;
 import com.seckawijoki.jfinal.controller.FavoriteController;
 import com.seckawijoki.jfinal.controller.SHController;
@@ -33,13 +38,12 @@ import com.seckawijoki.jfinal.utils.OkHttpUtils;
  */
 
 public class SeckawijokiConfig extends JFinalConfig {
-
   public void configConstant(Constants constants) {
     // 加载少量必要配置，随后可用PropKit.get(...)获取值
     loadPropertyFile("a_little_config.txt");
     constants.setDevMode(true);
     constants.setBaseUploadPath(PathKit.getWebRootPath() + "\\uploaded_images");
-    constants.setBaseDownloadPath(PathKit.getWebRootPath()+"\\k_line_chart");
+    constants.setBaseDownloadPath(PathKit.getWebRootPath() + "\\k_line_chart");
   }
 
   public void configRoute(Routes routes) {
@@ -56,6 +60,7 @@ public class SeckawijokiConfig extends JFinalConfig {
             .add("/stock", StockController.class)
             .add("/search", SearchController.class)
             .add("/transaction", TransactionController.class)
+            .add("/app", AppController.class)
     ;
 
   }
@@ -74,14 +79,21 @@ public class SeckawijokiConfig extends JFinalConfig {
 
     // 配置ActiveRecord插件
     ActiveRecordPlugin arp = new ActiveRecordPlugin(druidPlugin);
-//    System.out.println("SeckawijokiConfig.configPlugin(): PathKit.getRootClassPath() = " + PathKit.getRootClassPath());
-    arp.setBaseSqlTemplatePath(PathKit.getWebRootPath()+"\\sql");
-    arp
-            .addSqlTemplate("user.sql")
+    System.out.println("SeckawijokiConfig.configPlugin(): PathKit.getRootClassPath() = "
+            + PathKit.getRootClassPath());
+    System.out.println("SeckawijokiConfig.configPlugin(): PathKit.getRootClassPath() = "
+            + PathKit.getWebRootPath());
+    //PathKit.getRootClassPath()
+    // = E:\Intellij_Commercial_Project\JFinalTest\JFinalTest_jetty\web\WEB-INF\classes
+    //PathKit.getRootClassPath()
+    // = E:\Intellij_Commercial_Project\JFinalTest\JFinalTest_jetty\web
+    arp.setBaseSqlTemplatePath(PathKit.getWebRootPath() + "\\sql");
+    arp.addSqlTemplate("user.sql")
             .addSqlTemplate("stock.sql")
             .addSqlTemplate("search.sql")
             .addSqlTemplate("favorite.sql")
-            .addSqlTemplate("transaction.sql");
+            .addSqlTemplate("transaction.sql")
+            .addSqlTemplate("app.sql");
     arp.setShowSql(true);
     //TODO
 
@@ -121,12 +133,12 @@ public class SeckawijokiConfig extends JFinalConfig {
   public void afterJFinalStart() {
     super.afterJFinalStart();
     new AfterJFinalStart();
+    OkHttpUtils.init();
   }
 
   @Override
   public void beforeJFinalStop() {
     super.beforeJFinalStop();
-    OkHttpUtils.init();
   }
 
 }

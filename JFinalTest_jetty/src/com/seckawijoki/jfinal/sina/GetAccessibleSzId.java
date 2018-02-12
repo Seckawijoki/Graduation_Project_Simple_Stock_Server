@@ -2,7 +2,7 @@ package com.seckawijoki.jfinal.sina;
 
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
-import com.seckawijoki.jfinal.utils.SinaStockUtils;
+import com.seckawijoki.jfinal.tools.SinaResponseTools;
 import com.seckawijoki.jfinal.utils.TextUtils;
 
 import java.io.IOException;
@@ -41,8 +41,8 @@ public class GetAccessibleSzId extends Thread implements Callback {
   @Override
   public void onResponse(Call call, Response response) throws IOException {
     String result = response.body().string();
-    String stockId = SinaStockUtils.extractStockId(result);
-    String[] values = SinaStockUtils.parse(result);
+    String stockId = SinaResponseTools.extractStockId(result);
+    String[] values = SinaResponseTools.parse(result);
 //    System.out.println("GetAccessibleSzId.onResponse(): values = " + Arrays.toString(values));
     if (values.length != 0 && !TextUtils.isEmpty(values[0])){
       Record savedRecord = new Record()

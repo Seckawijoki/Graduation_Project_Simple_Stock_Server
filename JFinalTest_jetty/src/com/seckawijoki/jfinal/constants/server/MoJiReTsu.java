@@ -12,8 +12,7 @@ public interface MoJiReTsu {
   String STOCK_TYPE = "stockType";
   String TRADE_PRICE = "tradePrice";
   String TRADE_COUNT = "tradeCount";
-  String TRADE_DATE = "tradeDate";
-  String TRADE_TIME= "tradeTime";
+  String TRADE_DATE_TIME = "tradeDateTime";
   String RESULT= "result";
   String USER = "user";
   String USER_ID = "userId";
@@ -28,5 +27,15 @@ public interface MoJiReTsu {
   String LAST_LOGIN_TIME = "lastLoginTime";
   String ACCOUNT = "account";
   String PORTRAIT_URI = "portraitUri";
+  String PORTRAIT_FILE_NAME= "portraitFileName";
   String TRUE = "true";
+  String CURRENT_PRICE = "currentPrice";
+  String CLOSING_PRICE_YESTERDAY = "closingPriceYesterday";
+  String PROFIT_OR_LOSS = "profitOrLoss";
+  String PROFIT_OR_LOSS_RATE = "profitOrLossRate";
+  String TRANSACTION_ID = "transactionId";
+  String VERSION_CODE = "versionCode";
+  String VERSION_NAME = "versionName";
+  String VERSION_DESCRIPTION = "versionDescription";
+  String APK_DOWNLOAD_URI = "apkDownloadUri";
 }

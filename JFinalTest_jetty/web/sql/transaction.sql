@@ -1,25 +1,27 @@
+#sql("getTransactions")
+select *
+from `transaction` ;
+#end
+
 #sql("getAllTransactions")
-select t.userId, t.stockTableId, t.tradePrice, t.tradeCount, t.tradeDate, t.tradeDate,
-u.nickname,
-s.stockId, s.stockName, s.stockType
-from transaction as t,
-user as u,
-all_stocks as s
+select t.transactionId, t.userId, t.stockTableId, t.tradePrice, t.tradeCount, t.tradeDateTime,
+u.nickname, s.stockName, s.stockId, s.stockType
+from transaction as t, user as u, all_stocks as s
 where t.userId = u.userId and t.stockTableId = s.stockTableId
-order by t.tradeDate, t.tradeTime;
+order by t.tradeDateTime desc;
 #end
 
 #sql("getUserTransactions")
-select t.stockTableId, t.tradePrice, t.tradeCount, t.tradeDate, t.tradeDate,
+select t.transactionId, t.stockTableId, t.tradePrice, t.tradeCount, t.tradeDateTime,
 u.nickname,
-s.stockId, s.stockName, s.stockType
+s.stockName, s.stockId, s.stockType
 from transaction as t,
 user as u,
 all_stocks as s
 where t.userId = #para(userId)
 and u.userId = t.userId
 and t.stockTableId = s.stockTableId
-order by t.tradeDate, t.tradeTime;
+order by t.tradeDateTime desc;
 #end
 
 #sql("updateUserPurchasingPower")

@@ -9,8 +9,8 @@ import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.upload.UploadFile;
 import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
 import com.seckawijoki.jfinal.constants.server.UploadPath;
-import com.seckawijoki.jfinal.utils.JsonPackageUtils;
-import com.seckawijoki.jfinal.utils.MyDbUtils;
+import com.seckawijoki.jfinal.tools.JsonPackageTools;
+import com.seckawijoki.jfinal.tools.MyDbTools;
 import com.seckawijoki.jfinal.utils.TextUtils;
 
 import org.json.JSONObject;
@@ -69,7 +69,7 @@ public class UserController extends Controller {
   public void changeNickname() {
     long userId = getParaToLong(MoJiReTsu.USER_ID);
     String nickname = getPara(MoJiReTsu.NICKNAME);
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
     if ( userRecord == null )
       renderNull();
     int update = Db.update("update " + MoJiReTsu.USER + " set nickname = ?", nickname);
@@ -83,7 +83,7 @@ public class UserController extends Controller {
   public void changeEmail() {
     long userId = getParaToLong(MoJiReTsu.USER_ID);
     String email = getPara(MoJiReTsu.EMAIL);
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
     if ( userRecord == null ) {
       System.err.println("UserController.changeEmail(): Invalid email");
       renderNull();
@@ -102,7 +102,7 @@ public class UserController extends Controller {
   }
 
   public void getDefaultPortrait() {
-    File file = new File(PathKit.getWebRootPath() + "\\uploadedImages\\ic_default_user_portrait.png");
+    File file = new File(PathKit.getWebRootPath() + "\\ic_default_user_portrait.png");
     System.out.println("UserController.getDefaultPortrait(): PathKit.getWebRootPath() = " + PathKit.getWebRootPath());
     System.out.println("UserController.getDefaultPortrait(): file = " + file);
     renderFile(file);
@@ -110,21 +110,28 @@ public class UserController extends Controller {
 
   public void getUserInfo() {
     long userId = getParaToLong(MoJiReTsu.USER_ID);
-    Record userRecord = MyDbUtils.getUserRecord(userId);
-    JSONObject jsonObject = JsonPackageUtils.parseRecord(userRecord,
+    Record userRecord = MyDbTools.getUserRecord(userId);
+    JSONObject jsonObject = JsonPackageTools.parseRecord(userRecord,
             MoJiReTsu.PHONE,
             MoJiReTsu.EMAIL,
-            MoJiReTsu.NICKNAME
+            MoJiReTsu.NICKNAME,
+            MoJiReTsu.PORTRAIT_FILE_NAME
     );
+    System.out.println("UserController.getUserInfo(): jsonObject = " + jsonObject);
     renderJson(jsonObject.toString());
   }
 
   public void getUserPortrait() {
     long userId = getParaToLong(MoJiReTsu.USER_ID);
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
+    System.out.println("UserController.getUserPortrait(): userRecord = " + userRecord);
+//    String fileName = getPara(MoJiReTsu.PORTRAIT_FILE_NAME);
+//    System.out.println("UserController.getUserPortrait():/n fileName = " + fileName);
+//    String filePath = PathKit.getWebRootPath() + "/user_portrait/" + fileName;
     String filePath = userRecord.getStr(MoJiReTsu.PORTRAIT_URI);
+    System.out.println("UserController.getUserPortrait():/n filePath = " + filePath);
     File file = new File(filePath);
-    if (file.exists() == false){
+    if ( !file.exists() ){
       System.out.println("UserController.getUserPortrait(): file = " + file);
       file = new File(UploadPath.DEFAULT_USER_PORTRAIT);
     }
@@ -181,9 +188,10 @@ public class UserController extends Controller {
       return;
     }
     result = Db.update(
-      Db.getSqlPara("updateUserPortraitUri",
+      Db.getSqlPara("updateUserPortrait",
               Kv.by(MoJiReTsu.USER_ID, userId)
                       .set(MoJiReTsu.PORTRAIT_URI, savingFile.getPath())
+                      .set(MoJiReTsu.PORTRAIT_FILE_NAME, savingFile.getName())
       )
     ) > 0;
     System.out.println("UserController.uploadUserPortrait(): savingFile = " + savingFile);

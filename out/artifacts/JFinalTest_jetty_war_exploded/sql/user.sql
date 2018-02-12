@@ -2,8 +2,8 @@
 select * from user where userId = #para(userId);
 #end
 
-#sql("updateUserPortraitUri")
+#sql("updateUserPortrait")
 update user
-set portraitUri = #para(portraitUri)
+set portraitFileName = #para(portraitFileName)
 where userId = #para(userId)
 #end

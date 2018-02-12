@@ -26,7 +26,7 @@ public class OkHttpUtils {
   private static final int TIMEOUT_SECONDS = 10;
   private OkHttpUtils(){}
   public static void init(){
-    pool = Executors.newFixedThreadPool(4);
+    pool = Executors.newFixedThreadPool(8);
   }
   public static GetBuilder get(){
     return new GetBuilder();
@@ -39,7 +39,6 @@ public class OkHttpUtils {
     private FormBody.Builder formBodyBuilder = new FormBody.Builder();
     private PostBuilder() {
     }
-
     public PostBuilder url(String url) {
       requestBuilder.url(url);
       return this;
@@ -49,25 +48,7 @@ public class OkHttpUtils {
       formBodyBuilder.add(name, value);
       return this;
     }
-    public Response executeForByteStream(){
-      requestBuilder.post(formBodyBuilder.build());
-      OkHttpClient okHttpClient = new OkHttpClient.Builder()
-              .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-              .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-              .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-              .build();
-      Callable<Response> callable = () -> {
-        Response response =
-                okHttpClient.newCall(requestBuilder.build()).execute();
-        return response;
-      };
-      Future<Response> future = pool.submit(callable);
-      try {
-        return future.get();
-      } catch ( InterruptedException | ExecutionException e ) {
-        return null;
-      }
-    }
+
     public ResponseResult execute() {
       requestBuilder.post(formBodyBuilder.build());
       OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -99,14 +80,11 @@ public class OkHttpUtils {
     }
     public ResponseResult execute(){
       Callable<String> callable = () -> {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .readTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .writeTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                .build();
-        Response response =
-                okHttpClient.newCall(requestBuilder.build()).execute();
-        return response.body().string();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Response response = okHttpClient.newCall(requestBuilder.build()).execute();
+        String result = response.body().string();
+        System.out.println("GetBuilder.execute(): result = " + result);
+        return result;
       };
       Future<String> future = pool.submit(callable);
       try {

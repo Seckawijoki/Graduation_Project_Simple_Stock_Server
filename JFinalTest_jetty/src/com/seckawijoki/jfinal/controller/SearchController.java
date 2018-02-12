@@ -4,13 +4,15 @@ import com.jfinal.core.Controller;
 import com.jfinal.kit.Kv;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
-import com.seckawijoki.jfinal.utils.DateUtils;
-import com.seckawijoki.jfinal.utils.MyDbUtils;
+import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
+import com.seckawijoki.jfinal.tools.MyDbTools;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+
+import javafx.util.converter.DateTimeStringConverter;
 
 /**
  * Created by 瑶琴频曲羽衣魂 on 2017/12/16 at 19:37.
@@ -19,18 +21,18 @@ import java.util.List;
 public class SearchController extends Controller {
   public void getStockSearchHistory() {
     long userId = getParaToLong("userId");
-    List<Record> stockRecordList = Db.find(
+    List<Record> searchRecordList = Db.find(
             Db.getSqlPara("getStockSearchHistory",
                     Kv.by("userId", userId)
                             .set("limit", 20)
             )
     );
-    System.out.println("SearchController.getStockSearchHistory(): stockRecordList = " + stockRecordList);
+    System.out.println("SearchController.getStockSearchHistory(): searchRecordList = " + searchRecordList);
     JSONArray jsonArray = new JSONArray();
-    for ( int i = 0 ; i < stockRecordList.size() ; i++ ) {
-      Record stockRecord = stockRecordList.get(i);
-      System.out.println("SearchController.getStockSearchHistory(): stockRecord = " + stockRecord);
-      long stockTableId = stockRecord.getLong("stockTableId");
+    for ( int i = 0 ; i < searchRecordList.size() ; i++ ) {
+      Record searchRecord = searchRecordList.get(i);
+      System.out.println("SearchController.getStockSearchHistory(): searchRecord = " + searchRecord);
+      long stockTableId = searchRecord.getLong("stockTableId");
       Record recordInFavorite =
               Db.findFirst(
                       Db.getSqlPara("getStockInFavorite",
@@ -38,12 +40,12 @@ public class SearchController extends Controller {
                                       .set("userId", userId)));
       System.out.println("SearchController.getStockSearchHistory(): recordInFavorite = " + recordInFavorite);
       jsonArray.put(new JSONObject()
-              .put("stockTableId", stockRecord.getLong("stockTableId"))
-              .put("stockId", stockRecord.getStr("stockId"))
-              .put("stockType", stockRecord.getInt("stockType"))
-              .put("stockName", stockRecord.getStr("stockName"))
-              .put("searchTime", DateUtils.dateStringToLong(
-                      stockRecord.getStr("searchTime")))
+              .put("stockTableId", searchRecord.getLong("stockTableId"))
+              .put("stockId", searchRecord.getStr("stockId"))
+              .put("stockType", searchRecord.getInt("stockType"))
+              .put("stockName", searchRecord.getStr("stockName"))
+              .put("searchTime",
+                      searchRecord.getDate("searchTime").getTime())
               .put("favorite", recordInFavorite != null));
     }
     renderJson(jsonArray.toString());
@@ -94,8 +96,8 @@ public class SearchController extends Controller {
     );
     if ( updateResult == 1 ) {
       renderJson(new JSONObject()
-              .put("searchTime", DateUtils.dateStringToLong(
-                      record.getStr("searchTime")))
+              .put("searchTime",
+                      record.getDate("searchTime").getTime())
               .toString());
       return;
     }
@@ -109,8 +111,8 @@ public class SearchController extends Controller {
                     Kv.by("userId", userId).set("stockTableId", stockTableId))
     );
     renderJson(new JSONObject()
-            .put("searchTime", DateUtils.dateStringToLong(
-                    record.getStr("searchTime")))
+            .put("searchTime",
+                    record.getDate("searchTime").getTime())
             .toString());
   }
 
@@ -126,7 +128,7 @@ public class SearchController extends Controller {
   public void addFavoriteStockFromSearch() {
     long userId = getParaToLong("userId");
     long stockTableId = getParaToLong("stockTableId");
-    if ( MyDbUtils.checkUserExistent(userId) == false ) {
+    if ( MyDbTools.checkUserExistent(userId) == false ) {
       renderJson(new JSONObject());
 //      renderText("false");
       return;
@@ -149,7 +151,7 @@ public class SearchController extends Controller {
             userId, userId, userId
     );
     System.out.println("SearchController.addFavoriteStock(): rankWeight = " + rankWeight);
-    Record stockRecord = MyDbUtils.getStockRecord(stockTableId);
+    Record stockRecord = MyDbTools.getStockRecord(stockTableId);
     Record record;
     boolean result = Db.save("favorite_stock",
             record = new Record()
@@ -170,7 +172,7 @@ public class SearchController extends Controller {
   public void deleteFavoriteStockFromSearch() {
     long userId = getParaToLong("userId");
     String stockTableId = getPara("stockTableId");
-    if ( MyDbUtils.checkUserExistent(userId) == false ) {
+    if ( MyDbTools.checkUserExistent(userId) == false ) {
 //      renderJson(new JSONObject());
       renderText("false");
       return;

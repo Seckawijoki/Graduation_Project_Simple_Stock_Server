@@ -6,7 +6,7 @@ import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
 import com.seckawijoki.jfinal.constants.server.DefaultGroups;
 import com.seckawijoki.jfinal.constants.server.DefaultStocks;
-import com.seckawijoki.jfinal.utils.MyDbUtils;
+import com.seckawijoki.jfinal.tools.MyDbTools;
 import com.seckawijoki.jfinal.utils.TextUtils;
 
 import org.json.JSONArray;
@@ -21,7 +21,7 @@ import java.util.List;
 public class FavoriteController extends Controller {
   private JSONArray getFavoriteGroups(long userId) {
     JSONArray jsonArray = new JSONArray();
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
     if ( userRecord == null ) {
       return jsonArray;
     }
@@ -59,7 +59,7 @@ public class FavoriteController extends Controller {
   public void addFavoriteGroup() {
     long userId = getParaToLong("userId");
     String favoriteGroupName = getPara("favoriteGroupName");
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
     System.out.println("FavoriteController.addFavoriteGroup(): userRecord = " + userRecord);
     JSONObject jsonObject = new JSONObject();
     if ( userRecord == null ) {
@@ -119,7 +119,7 @@ public class FavoriteController extends Controller {
     JSONArray result = new JSONArray();
     long userId = getParaToLong("userId");
     Long[] favoriteGroupIds = getParaValuesToLong("favoriteGroupId");
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
     System.out.println("FavoriteController.deleteFavoriteGroups(): userRecord = " + userRecord);
     if ( userRecord == null ) {
       renderJson(new JSONObject().put("result", result.put(false)).toString());
@@ -147,13 +147,13 @@ public class FavoriteController extends Controller {
   public void deleteFavoriteGroup() {
     long userId = getParaToLong("userId");
     long favoriteGroupId = getParaToLong("favoriteGroupId");
-    Record userRecord = MyDbUtils.getUserRecord(userId);
+    Record userRecord = MyDbTools.getUserRecord(userId);
     System.out.println("FavoriteController.deleteFavoriteGroup(): userRecord = " + userRecord);
     if ( userRecord == null ) {
       renderText("false");
       return;
     }
-    Record groupTypeRecord = MyDbUtils.getFavoriteGroupTypeRecord(favoriteGroupId);
+    Record groupTypeRecord = MyDbTools.getFavoriteGroupTypeRecord(favoriteGroupId);
     System.out.println("FavoriteController.deleteFavoriteGroup(): groupTypeRecord = "
             + groupTypeRecord);
     if ( groupTypeRecord == null ) {
@@ -172,29 +172,28 @@ public class FavoriteController extends Controller {
     long userId = getParaToLong("userId");
     String oldGroupName = getPara("oldGroupName");
     String newGroupName = getPara("newGroupName");
-    Record userRecord = MyDbUtils.getUserRecord(userId);
-    System.out.println("FavoriteController.renameFavoriteGroup(): userRecord = " + userRecord);
+    Record userRecord = MyDbTools.getUserRecord(userId);
+//    System.out.println("FavoriteController.renameFavoriteGroup(): userRecord = " + userRecord);
     if ( userRecord == null ) {
-      renderText(jsonObject.toString());
+      renderNull();
       return;
     }
-    Record oldGroupRecord = MyDbUtils.getFavoriteGroupRecord(userId, oldGroupName);
+    Record oldGroupRecord = MyDbTools.getFavoriteGroupRecord(userId, oldGroupName);
     if ( oldGroupRecord == null ) {
-      renderText(jsonObject.toString());
+      renderNull();
       return;
     }
     long oldGroupId = oldGroupRecord.getLong("favoriteGroupId");
     int rankWeight = oldGroupRecord.getInt("rankWeight");
-    Record newGroupRecord = MyDbUtils.getFavoriteGroupRecord(userId, newGroupName);
+    Record newGroupRecord = MyDbTools.getFavoriteGroupRecord(userId, newGroupName);
     if ( newGroupRecord != null ) {
-      renderJson(jsonObject.toString());
+      renderNull();
       return;
     }
-    Record groupTypeRecord = MyDbUtils.getFavoriteGroupTypeRecord(newGroupName);
+    Record groupTypeRecord = MyDbTools.getFavoriteGroupTypeRecord(newGroupName);
     if ( groupTypeRecord == null ) {
       Db.save("favorite_group_type",
-              groupTypeRecord = new Record()
-                      .set("favoriteGroupName", newGroupName));
+              new Record().set("favoriteGroupName", newGroupName));
     }
     int deleteResult =
             Db.update(
@@ -202,10 +201,11 @@ public class FavoriteController extends Controller {
                     userId, oldGroupId
             );
     System.out.println("FavoriteController.renameFavoriteGroup(): deleteResult = " + deleteResult);
-    if ( deleteResult != 1 ) {
-      renderJson(jsonObject.toString());
+    if ( deleteResult <= 0 ) {
+      renderNull();
       return;
     }
+    groupTypeRecord = MyDbTools.getFavoriteGroupTypeRecord(newGroupName);
     long newGroupId = groupTypeRecord.getLong("favoriteGroupId");
     System.out.println("FavoriteController.renameFavoriteGroup(): newGroupId = " + newGroupId);
     int minWeight = Db.queryInt(

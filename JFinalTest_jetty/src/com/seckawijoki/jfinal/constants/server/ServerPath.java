@@ -391,4 +391,57 @@ public interface ServerPath {
    * {@link String} by the key "nickname"
    */
   String GET_USER_INFO = BASE_PATH + "user/getUserInfo";
+  /**
+   * @Param
+   * the portrait file as {@link java.io.File}
+   * userId as {@link Long}
+   * @return an {@link org.json.JSONObject} containing
+   * {@link Boolean} by the key "result"
+   */
+  String UPLOAD_USER_PORTRAIT = BASE_PATH + "user/uploadUserPortrait";
+  /**
+   * @Param
+   * userId {@link Long}
+   * nickname {@link String}
+   * @return a {@link Boolean} 
+   */
+  String CHANGE_NICKNAME = BASE_PATH + "user/changeNickname";
+  /**
+   * @Param
+   * userId {@link Long}
+   * email {@link String}
+   * @return a {@link Boolean}
+   */
+  String CHANGE_EMAIL = BASE_PATH + "user/changeEmail";
+  /**
+   * @Param
+   * null
+   * @return a {@link org.json.JSONArray}
+   * in which the element as {@link org.json.JSONObject} containing
+   * {@link Double} by the key "tradePrice"
+   * {@link java.util.Date} by the key "tradeDate"
+   * {@link java.sql.Time} by the key "tradeTime"
+   * {@link Long} by the key "stockTableId"
+   * {@link String} by the key "stockName"
+   * {@link String} by the key "stockId"
+   * {@link Integer} by the key "stockType"
+   * {@link Long} by the key "userId"
+   * {@link String} by the key "nickname"
+   */
+  String GET_ALL_TRANSACTIONS = BASE_PATH + "transaction/getAllTransactions";
+  /**
+   * @Param
+   * userId {@link Long}
+   * @return a {@link org.json.JSONArray}
+   * in which the element as {@link org.json.JSONObject} containing
+   * {@link Double} by the key "tradePrice"
+   * {@link java.util.Date} by the key "tradeDate"
+   * {@link java.sql.Time} by the key "tradeTime"
+   * {@link Long} by the key "stockTableId"
+   * {@link String} by the key "stockName"
+   * {@link String} by the key "stockId"
+   * {@link Integer} by the key "stockType"
+   * {@link String} by the key "nickname"
+   */
+  String GET_USER_TRANSACTIONS = BASE_PATH + "transaction/getUserTransactions";
 }

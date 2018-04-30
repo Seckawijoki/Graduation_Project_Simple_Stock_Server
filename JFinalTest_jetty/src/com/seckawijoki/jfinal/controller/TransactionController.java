@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -131,22 +132,24 @@ public class TransactionController extends Controller {
                     .set(MoJiReTsu.STOCK_TABLE_ID, stockTableId)
                     .set(MoJiReTsu.TRADE_PRICE, tradePrice)
                     .set(MoJiReTsu.TRADE_COUNT, tradeCount)
-                    .set(MoJiReTsu.TRADE_DATE_TIME, new Date(System.currentTimeMillis()))
+                    .set(MoJiReTsu.TRADE_DATE_TIME, Calendar.getInstance().getTime())
     );
     if ( !result ) {
-      renderNull();
+      renderJson(new JSONObject().put(MoJiReTsu.RESULT, false).toString());
       return;
     }
+    /*
     int update = Db.update(
             Db.getSqlPara("updateUserPurchasingPower",
                     Kv.by(MoJiReTsu.USER_ID, userId)
                             .set("cost", tradeCount * tradePrice))
     );
     if ( update <= 0 ) {
-      renderNull();
+      renderJson(new JSONObject().put(MoJiReTsu.RESULT, false).toString());
       return;
     }
-    renderJson(new JSONObject().put(MoJiReTsu.RESULT, true));
+    */
+    renderJson(new JSONObject().put(MoJiReTsu.RESULT, true).toString());
   }
 
 

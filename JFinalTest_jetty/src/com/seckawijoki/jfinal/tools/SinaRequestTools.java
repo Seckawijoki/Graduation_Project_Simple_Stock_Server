@@ -1,5 +1,6 @@
 package com.seckawijoki.jfinal.tools;
 
+import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
 import com.seckawijoki.jfinal.constants.server.StockType;
 import com.seckawijoki.jfinal.constants.server.KLineType;
 import com.seckawijoki.jfinal.constants.sina.SinaKLineType;
@@ -7,11 +8,37 @@ import com.seckawijoki.jfinal.constants.sina.SinaServerPath;
 import com.seckawijoki.jfinal.constants.sina.SinaStockType;
 import com.seckawijoki.jfinal.utils.OkHttpUtils;
 
+import org.json.JSONObject;
+
 /**
  * Created by 瑶琴频曲羽衣魂 on 2017/12/5 at 17:17.
  */
 
 public class SinaRequestTools {
+  public static class URLBuilder{
+    private int count = 0;
+    private StringBuilder str = new StringBuilder();
+    public URLBuilder(){
+      str.append(SinaServerPath.STOCK_BASE_PATH);
+    }
+    public URLBuilder appendQuotationUrl(String stockId, int stockType){
+      if (count++ != 0){
+        str.append(',');
+      }
+      str.append("s_").append(getSinaStockType(stockType)).append(stockId);
+      return this;
+    }
+    public URLBuilder appendStockUrl(String stockId, int stockType){
+      if (count++ != 0){
+        str.append(',');
+      }
+      str.append(getSinaStockType(stockType)).append(stockId);
+      return this;
+    }
+    public String build(){
+      return str.toString();
+    }
+  }
   private SinaRequestTools() {
   }
   public static String getSinaKLineType(int kLineType) {
@@ -64,19 +91,9 @@ public class SinaRequestTools {
   public static String getSinaStockUrl(String stockId, int stockType) {
     String sinaStockType;
     String url;
-    switch ( stockType ) {
-      default:
-      case StockType.SH:
-        sinaStockType = SinaStockType.SH;
-        break;
-      case StockType.SZ:
-      case StockType.CHUANG_YE_BAN:
-        sinaStockType = SinaStockType.SZ;
-        break;
-    }
     url = String.format(
             SinaServerPath.FORMAT_GET_STOCK,
-            sinaStockType, stockId
+            getSinaStockType(stockType), stockId
     );
     return url;
   }
@@ -148,6 +165,16 @@ public class SinaRequestTools {
       4：成交量（手）
       5：成交额（万元）
    */
+  public static JSONObject getSinaQuotationToJson(String stockId, int stockType){
+    String[] values = getSinaQuotation(stockId, stockType);
+    return new JSONObject()
+            .put(MoJiReTsu.STOCK_NAME, values[0])
+            .put(MoJiReTsu.CURRENT_PRICE, values[1])
+            .put(MoJiReTsu.CURRENT_POINT, values[2])
+            .put(MoJiReTsu.FLUCTUATION_RATE, values[3])
+            .put(MoJiReTsu.TURNOVER, values[4])
+            .put(MoJiReTsu.VOLUME, values[5]);
+  }
   public static String[] getSinaQuotation(String stockId, int stockType){
     String url = getSinaQuotationUrl(stockId, stockType);
     return getSinaStockToValues(url);

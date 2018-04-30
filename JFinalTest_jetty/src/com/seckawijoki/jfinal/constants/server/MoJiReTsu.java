@@ -38,4 +38,13 @@ public interface MoJiReTsu {
   String VERSION_NAME = "versionName";
   String VERSION_DESCRIPTION = "versionDescription";
   String APK_DOWNLOAD_URI = "apkDownloadUri";
+  String VOLUME = "volume";
+  String TURNOVER = "turnover";
+  String FLUCTUATION_RATE = "fluctuationRate";
+  String CURRENT_POINT = "currentPoint";
+  String UPDATE_TIME = "updateTime";
+  String TOP_STOCK_COUNT = "topStockCount";
+  String TOP_STOCK_TYPE = "topStockType";
+  String TOP_STOCK_ORDER = "topStockOrder";
+  String HOT_STOCK_COUNT = "hotStockCount";
 }

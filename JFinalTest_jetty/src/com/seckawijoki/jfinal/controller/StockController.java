@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 
 public class StockController extends Controller {
   private static ExecutorService pool = Executors.newFixedThreadPool(4);
-
   public void getQuotations() {
     long userId = getParaToLong("userId");//userId
     final Long[] stockTableIds = getParaValuesToLong("stockTableId");
@@ -36,6 +35,7 @@ public class StockController extends Controller {
     for ( int i = 0 ; i < stockTableIds.length ; i++ ) {
       final long stockTableId = stockTableIds[i];
       Record stockRecord = MyDbTools.getStockRecord(stockTableId);
+      MyDbTools.updateCheckCount(stockTableId);
       String stockId = stockRecord.getStr("stockId");
       int stockType = stockRecord.getInt("stockType");
       String[] values = SinaRequestTools.getSinaQuotation(stockId, stockType);
@@ -59,6 +59,7 @@ public class StockController extends Controller {
     for ( int i = 0 ; i < stockTableIds.length ; i++ ) {
       final long stockTableId = stockTableIds[i];
       Record stockRecord = MyDbTools.getStockRecord(stockTableId);
+      MyDbTools.updateCheckCount(stockTableId);
       String stockId = stockRecord.getStr("stockId");
       int stockType = stockRecord.getInt("stockType");
       String[] values = SinaRequestTools.getSinaStock(stockId, stockType);

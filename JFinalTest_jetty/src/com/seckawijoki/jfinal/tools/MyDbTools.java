@@ -3,6 +3,7 @@ package com.seckawijoki.jfinal.tools;
 import com.jfinal.kit.Kv;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Record;
+import com.seckawijoki.jfinal.constants.server.MoJiReTsu;
 
 /**
  * Created by 瑶琴频曲羽衣魂 on 2017/12/5 at 19:20.
@@ -11,6 +12,10 @@ import com.jfinal.plugin.activerecord.Record;
 public class MyDbTools {
   private MyDbTools(){
 
+  }
+  public static void updateCheckCount(long stockTableId){
+    new Thread(()-> Db.update(Db.getSqlPara("updateStockCheckCount",
+            Kv.by(MoJiReTsu.STOCK_TABLE_ID, stockTableId)))).start();
   }
   public static Record getStockRecord(long stockTableId){
     return Db.findFirst(

@@ -11,6 +11,9 @@ import com.seckawijoki.jfinal.utils.TextUtils;
 
 public class SinaResponseTools {
   private SinaResponseTools(){}
+  public static String[] splitMultiResponses(String result){
+    return result.split(";");
+  }
   public static int parseStockType(String result){
     int end = result.indexOf('=');
     String type = result.substring(end-8, end-6);
@@ -29,6 +32,7 @@ public class SinaResponseTools {
   public static String[] parse(String response){
     int start = response.indexOf('"') + 1;
     int end = response.lastIndexOf('"');
+    if (start < 0 || end < 0)return new String[]{};
     return response.substring(start, end).split(",");
   }
 }

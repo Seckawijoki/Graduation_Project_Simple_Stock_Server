@@ -21,24 +21,33 @@ import javafx.util.converter.DateTimeStringConverter;
 public class SearchController extends Controller {
   public void getStockSearchHistory() {
     long userId = getParaToLong("userId");
+    long favoriteGroupId = getParaToLong("favoriteGroupId", -1L);
     List<Record> searchRecordList = Db.find(
             Db.getSqlPara("getStockSearchHistory",
                     Kv.by("userId", userId)
                             .set("limit", 20)
             )
     );
-    System.out.println("SearchController.getStockSearchHistory(): searchRecordList = " + searchRecordList);
+//    System.out.println("SearchController.getStockSearchHistory(): searchRecordList = " + searchRecordList);
     JSONArray jsonArray = new JSONArray();
     for ( int i = 0 ; i < searchRecordList.size() ; i++ ) {
       Record searchRecord = searchRecordList.get(i);
-      System.out.println("SearchController.getStockSearchHistory(): searchRecord = " + searchRecord);
+//      System.out.println("SearchController.getStockSearchHistory(): searchRecord = " + searchRecord);
       long stockTableId = searchRecord.getLong("stockTableId");
-      Record recordInFavorite =
-              Db.findFirst(
-                      Db.getSqlPara("getStockInFavorite",
-                              Kv.by("stockTableId", stockTableId)
-                                      .set("userId", userId)));
-      System.out.println("SearchController.getStockSearchHistory(): recordInFavorite = " + recordInFavorite);
+      Record recordInFavorite;
+      if (favoriteGroupId <= 1) {
+        recordInFavorite = Db.findFirst(
+                Db.getSqlPara("getStockInFavorite",
+                        Kv.by("stockTableId", stockTableId)
+                                .set("userId", userId)));
+      } else {
+        recordInFavorite = Db.findFirst(
+                Db.getSqlPara("getStockInFavoriteWithGroupId",
+                        Kv.by("stockTableId", stockTableId)
+                                .set("userId", userId)
+                .set("favoriteGroupId", favoriteGroupId)));
+      }
+//      System.out.println("SearchController.getStockSearchHistory(): recordInFavorite = " + recordInFavorite);
       jsonArray.put(new JSONObject()
               .put("stockTableId", searchRecord.getLong("stockTableId"))
               .put("stockId", searchRecord.getStr("stockId"))
@@ -54,6 +63,7 @@ public class SearchController extends Controller {
   public void searchForMatchedStocks() {
     String userId = getPara("userId");
     String search = getPara("search");
+    long favoriteGroupId = getParaToLong("favoriteGroupId", -1L);
     int limit = getParaToInt("limit", 20);
     List<Record> stockRecordList =
             Db.find(Db.getSqlPara("searchForMatchedStocks",
@@ -64,11 +74,19 @@ public class SearchController extends Controller {
       Record stockRecord = stockRecordList.get(i);
 //      System.out.println("SearchController.searchForMatchedStocks(): stockRecord = " + stockRecord);
       long stockTableId = stockRecord.getLong("stockTableId");
-      Record recordInFavorite =
-              Db.findFirst(
-                      Db.getSqlPara("getStockInFavorite",
-                              Kv.by("stockTableId", stockTableId)
-                                      .set("userId", userId)));
+      Record recordInFavorite;
+      if (favoriteGroupId <= 1) {
+        recordInFavorite = Db.findFirst(
+                Db.getSqlPara("getStockInFavorite",
+                        Kv.by("stockTableId", stockTableId)
+                                .set("userId", userId)));
+      } else {
+        recordInFavorite = Db.findFirst(
+                Db.getSqlPara("getStockInFavoriteWithGroupId",
+                        Kv.by("stockTableId", stockTableId)
+                                .set("userId", userId)
+                                .set("favoriteGroupId", favoriteGroupId)));
+      }
 //      System.out.println("SearchController.searchForMatchedStocks(): recordInFavorite = " + recordInFavorite);
       jsonArray.put(new JSONObject()
               .put("stockTableId", stockTableId)
@@ -128,18 +146,30 @@ public class SearchController extends Controller {
   public void addFavoriteStockFromSearch() {
     long userId = getParaToLong("userId");
     long stockTableId = getParaToLong("stockTableId");
+    long favoriteGroupId = getParaToLong("favoriteGroupId", -1L);
     if ( MyDbTools.checkUserExistent(userId) == false ) {
       renderJson(new JSONObject());
 //      renderText("false");
       return;
     }
     System.out.println("SearchController.addFavoriteStock(): userId = " + userId);
-    Record existence = Db.findFirst(
-            Db.getSqlPara("getExistentFavoriteStock",
-                    Kv.by("userId", userId)
-                            .set("stockTableId", stockTableId)
-            )
-    );
+    Record existence;
+    if (favoriteGroupId <= 1) {
+      existence = Db.findFirst(
+              Db.getSqlPara("getExistentFavoriteStock",
+                      Kv.by("userId", userId)
+                              .set("stockTableId", stockTableId)
+              )
+      );
+    } else {
+      existence = Db.findFirst(
+              Db.getSqlPara("getExistentFavoriteStockFromFavoriteGroup",
+                      Kv.by("userId", userId)
+                              .set("stockTableId", stockTableId)
+                      .set("favoriteGroupId", favoriteGroupId)
+              )
+      );
+    }
     if ( existence != null ) {
       renderJson(new JSONObject());
 //      renderText("false");
@@ -153,18 +183,21 @@ public class SearchController extends Controller {
     System.out.println("SearchController.addFavoriteStock(): rankWeight = " + rankWeight);
     Record stockRecord = MyDbTools.getStockRecord(stockTableId);
     Record record;
+    if (favoriteGroupId < 0){
+      favoriteGroupId = stockRecord.getInt("stockType") + 2;
+    }
     boolean result = Db.save("favorite_stock",
             record = new Record()
                     .set("userId", userId)
                     .set("stockTableId", stockTableId)
                     //TODO 2017/12/27 22:58
-                    .set("favoriteGroupId", stockRecord.getInt("stockType") + 2)
+                    .set("favoriteGroupId", favoriteGroupId)
                     .set("rankWeight", rankWeight)
     );
     System.out.println("SearchController.addFavoriteStockFromSearch(): record = " + record);
 //    renderText(String.valueOf(result));
     renderJson(new JSONObject()
-            .put("favoriteGroupId", stockRecord.getInt("stockType") + 2)
+            .put("favoriteGroupId", favoriteGroupId)
             .put("rankWeight", rankWeight)
     .toString());
   }

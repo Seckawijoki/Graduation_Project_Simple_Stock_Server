@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.SocketTimeoutException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -21,10 +22,14 @@ import okhttp3.Response;
  */
 
 public class OkHttpUtils {
+  private static boolean mDebug = false;
   private static final String TAG = "OkHttpUtils";
   private static ExecutorService pool;
-  private static final int TIMEOUT_SECONDS = 10;
+  private static final int TIMEOUT_SECONDS = 20;
   private OkHttpUtils(){}
+  public static void debug(boolean debug){
+    mDebug = debug;
+  }
   public static void init(){
     pool = Executors.newFixedThreadPool(8);
   }
@@ -41,6 +46,10 @@ public class OkHttpUtils {
     }
     public PostBuilder url(String url) {
       requestBuilder.url(url);
+      return this;
+    }
+    public PostBuilder debug(boolean debug){
+      mDebug = debug;
       return this;
     }
 
@@ -74,6 +83,10 @@ public class OkHttpUtils {
     GetBuilder(){
       requestBuilder.get();
     }
+    public GetBuilder debug(boolean debug){
+      mDebug = debug;
+      return this;
+    }
     public GetBuilder url(String url){
       requestBuilder.url(url);
       return this;
@@ -83,7 +96,9 @@ public class OkHttpUtils {
         OkHttpClient okHttpClient = new OkHttpClient();
         Response response = okHttpClient.newCall(requestBuilder.build()).execute();
         String result = response.body().string();
-        System.out.println("GetBuilder.execute(): result = " + result);
+        if (mDebug) {
+          System.out.println("GetBuilder.execute(): result = " + result);
+        }
         return result;
       };
       Future<String> future = pool.submit(callable);

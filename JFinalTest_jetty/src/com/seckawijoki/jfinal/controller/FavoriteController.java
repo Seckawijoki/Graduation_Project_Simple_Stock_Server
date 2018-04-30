@@ -35,10 +35,26 @@ public class FavoriteController extends Controller {
     }
     for ( Record record : groupNameList ) {
       long groupId = record.getLong("favoriteGroupId");
-      int count = Db.queryInt(
-              Db.getSql("countFavoriteStock"),
-              userId, groupId
-      );
+      int count;
+      switch ( (int) groupId ) {
+        case DefaultGroups.ALL:
+          count = Db.queryInt(
+                  Db.getSql("countAllFavoriteStock"),
+                  userId
+          );
+          break;
+        case DefaultGroups.SPECIAL_ATTENTION:
+          count = Db.queryInt(
+                  Db.getSql("countSpecialFavoriteStock"),
+                  userId
+          );
+        default:
+          count = Db.queryInt(
+                  Db.getSql("countFavoriteStock"),
+                  userId, groupId
+          );
+      }
+
       jsonArray.put(new JSONObject()
               .put("favoriteGroupId", groupId)
               .put("favoriteGroupName", record.getStr("favoriteGroupName"))
@@ -362,7 +378,7 @@ public class FavoriteController extends Controller {
     for ( int i = 0 ; i < stockTableIds.length ; ++i ) {
       long stockTableId = stockTableIds[i];
       Record existence;
-      if (favoriteGroupId != 0 && favoriteGroupId != 1) {
+      if ( favoriteGroupId != 0 && favoriteGroupId != 1 ) {
         existence = Db.findFirst(
                 Db.getSqlPara("getExistentFavoriteStockFromFavoriteGroup",
                         Kv.by("userId", userId)
@@ -382,9 +398,16 @@ public class FavoriteController extends Controller {
       if ( existence == null ) {
         continue;
       }
-      int result = Db.update(
-              Db.getSql("deleteFavoriteStock"),
-              userId, favoriteGroupId, stockTableId);
+      int result;
+      if ( favoriteGroupId != 0 ) {
+        result = Db.update(
+                Db.getSql("deleteFavoriteStock"),
+                userId, favoriteGroupId, stockTableId);
+      } else {
+        result = Db.update(
+                Db.getSql("deleteFavoriteStockFromAllGroup"),
+                userId, stockTableId);
+      }
       System.out.println("FavoriteController.deleteFavoriteStock(): result = " + result);
       if ( result > 0 ) {
         stockTableIdArray.put(stockTableId);

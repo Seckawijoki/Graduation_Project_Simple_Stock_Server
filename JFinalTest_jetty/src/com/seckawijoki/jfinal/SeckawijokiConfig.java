@@ -6,12 +6,8 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
-import com.jfinal.core.JFinalFilter;
 import com.jfinal.kit.PathKit;
-import com.jfinal.log.Log;
-import com.jfinal.log.LogManager;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jfinal.plugin.activerecord.Config;
 import com.jfinal.plugin.activerecord.SqlReporter;
 import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
@@ -20,6 +16,8 @@ import com.seckawijoki.jfinal.controller.AllStocksController;
 import com.seckawijoki.jfinal.controller.AppController;
 import com.seckawijoki.jfinal.controller.ChuangYeBanController;
 import com.seckawijoki.jfinal.controller.FavoriteController;
+import com.seckawijoki.jfinal.controller.InformationController;
+import com.seckawijoki.jfinal.controller.RecommendationsController;
 import com.seckawijoki.jfinal.controller.SHController;
 import com.seckawijoki.jfinal.controller.SZController;
 import com.seckawijoki.jfinal.controller.SearchController;
@@ -29,8 +27,9 @@ import com.seckawijoki.jfinal.controller.HelloController;
 import com.seckawijoki.jfinal.controller.IndexController;
 import com.seckawijoki.jfinal.controller.TransactionController;
 import com.seckawijoki.jfinal.interceptor.GlobalInterceptor;
-import com.seckawijoki.jfinal.user.User;
-import com.seckawijoki.jfinal.user.UserController;
+import com.seckawijoki.jfinal.sina.SinaStocksDownloadingTask;
+import com.seckawijoki.jfinal.controller.user.User;
+import com.seckawijoki.jfinal.controller.user.UserController;
 import com.seckawijoki.jfinal.utils.OkHttpUtils;
 
 /**
@@ -61,6 +60,8 @@ public class SeckawijokiConfig extends JFinalConfig {
             .add("/search", SearchController.class)
             .add("/transaction", TransactionController.class)
             .add("/app", AppController.class)
+            .add("/information", InformationController.class)
+            .add("/recommendations", RecommendationsController.class)
     ;
 
   }
@@ -81,7 +82,7 @@ public class SeckawijokiConfig extends JFinalConfig {
     ActiveRecordPlugin arp = new ActiveRecordPlugin(druidPlugin);
     System.out.println("SeckawijokiConfig.configPlugin(): PathKit.getRootClassPath() = "
             + PathKit.getRootClassPath());
-    System.out.println("SeckawijokiConfig.configPlugin(): PathKit.getRootClassPath() = "
+    System.out.println("SeckawijokiConfig.configPlugin(): PathKit.getWebRootPath() = "
             + PathKit.getWebRootPath());
     //PathKit.getRootClassPath()
     // = E:\Intellij_Commercial_Project\JFinalTest\JFinalTest_jetty\web\WEB-INF\classes
@@ -93,7 +94,10 @@ public class SeckawijokiConfig extends JFinalConfig {
             .addSqlTemplate("search.sql")
             .addSqlTemplate("favorite.sql")
             .addSqlTemplate("transaction.sql")
-            .addSqlTemplate("app.sql");
+            .addSqlTemplate("app.sql")
+            .addSqlTemplate("information.sql")
+            .addSqlTemplate("sina.sql")
+            .addSqlTemplate("recommendations.sql");
     arp.setShowSql(true);
     //TODO
 
@@ -134,6 +138,7 @@ public class SeckawijokiConfig extends JFinalConfig {
     super.afterJFinalStart();
     new AfterJFinalStart();
     OkHttpUtils.init();
+    SinaStocksDownloadingTask.getInstance().start();
   }
 
   @Override

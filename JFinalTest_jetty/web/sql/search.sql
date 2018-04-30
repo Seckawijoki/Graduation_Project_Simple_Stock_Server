@@ -18,6 +18,13 @@ where stockTableId = #para(stockTableId)
 and userId = #para(userId)
 #end
 
+#sql("getStockInFavoriteWithGroupId")
+select * from favorite_stock
+where stockTableId = #para(stockTableId)
+and userId = #para(userId)
+and favoriteGroupId = #para(favoriteGroupId)
+#end
+
 #sql("getStockSearchHistory")
 select a.*, b.searchTime
 from all_stocks as a, search_history as b
@@ -26,13 +33,14 @@ and a.stockTableId in (
  select stockTableId from search_history
  where userId = #para(userId)
 )
-order by b.searchTime desc
+order by b.searchTime desc, b.searchCount desc
 limit #para(limit);
 #end
 
 #sql("updateStockSearchHistory")
 update search_history
-set searchTime = now()
+set searchTime = now(),
+searchCount = searchCount + 1
 where userId = #para(userId)
 and stockTableId = #para(stockTableId)
 #end

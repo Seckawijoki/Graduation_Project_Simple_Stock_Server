@@ -34,6 +34,14 @@ and favorite_group.userId = #para(userId)
 order by favorite_group.rankWeight desc ;
 #end
 
+#sql("countAllFavoriteStock")
+select count(*) from favorite_stock where userId = ? ;
+#end
+
+#sql("countSpecialFavoriteStock")
+select count(*) from favorite_stock where userId = ? and specialAttention = true;
+#end
+
 #sql("countFavoriteStock")
 select count(*) from favorite_stock where userId = ? and favoriteGroupId = ?;
 #end
@@ -94,6 +102,11 @@ select max(rankWeight) from favorite_stock where userId = ?
 #sql("deleteFavoriteStock")
 delete from favorite_stock where userId = ?
 and favoriteGroupId = ?
+and stockTableId = ?;
+#end
+
+#sql("deleteFavoriteStockFromAllGroup")
+delete from favorite_stock where userId = ?
 and stockTableId = ?;
 #end
 
